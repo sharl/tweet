@@ -14,17 +14,18 @@ my $ini  = Config::Tiny->read($conf);
 die "$conf: $!" unless $ini;
 
 my %consumer_tokens = +(
-   consumer_key    => $ini->{_}->{'Consumer key'},
-   consumer_secret => $ini->{_}->{'Consumer secret'},
-   );
+    consumer_key    => $ini->{_}->{'Consumer key'},
+    consumer_secret => $ini->{_}->{'Consumer secret'},
+    legacy_lists_api => 0,
+    );
 my $access_token        = $ini->{_}->{'Access Token'};
 my $access_token_secret = $ini->{_}->{'Access Token Secret'};
 
 my $tw;
 if (! $DEBUG) {
-   $tw = Net::Twitter::Lite->new(%consumer_tokens);
-   $tw->access_token($access_token);
-   $tw->access_token_secret($access_token_secret);
+    $tw = Net::Twitter::Lite->new(%consumer_tokens);
+    $tw->access_token($access_token);
+    $tw->access_token_secret($access_token_secret);
 }
 
 sub update {
