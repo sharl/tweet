@@ -7,11 +7,18 @@ use Config::Tiny;
 use Net::Twitter::Lite;
 
 my $DEBUG = -f '.debug';
+
+my $status = join(' ', @ARGV);
+unless ($status) {
+    $status = join('', <STDIN>);
+    chomp $status;
+}
+
 my $prog = basename($0);
 my $conf = "$ENV{HOME}/.$prog";
 my $ini  = Config::Tiny->read($conf);
 
-die "$conf: $!" unless $ini;
+die Config::Tiny->errstr unless $ini;
 
 my %consumer_tokens = +(
     consumer_key    => $ini->{_}->{'Consumer key'},
@@ -40,9 +47,4 @@ sub update {
     }
 }
 
-my $status = join(' ', @ARGV);
-unless ($status) {
-    $status = join('', <STDIN>);
-    chomp $status;
-}
-update($status);
+update($status) if $status;
