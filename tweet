@@ -24,6 +24,7 @@ my %consumer_tokens = +(
     consumer_key    => $ini->{_}->{'Consumer key'},
     consumer_secret => $ini->{_}->{'Consumer secret'},
     legacy_lists_api => 0,
+    apiurl           => 'http://api.twitter.com/1.1', # ad hoc v1.1 support
     );
 my $access_token        = $ini->{_}->{'Access Token'};
 my $access_token_secret = $ini->{_}->{'Access Token Secret'};
