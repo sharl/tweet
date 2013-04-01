@@ -9,8 +9,9 @@ use Net::Twitter::Lite;
 
 my $DEBUG = -f '.debug';
 
-GetOptions('debug'   => \$DEBUG,
-	   'perline' => \my $perline,
+GetOptions('debug'      => \$DEBUG,
+	   'interval=n' => \my $interval,
+	   'perline'    => \my $perline,
     );
 
 my $status = join(' ', @ARGV);
@@ -32,6 +33,7 @@ my %consumer_tokens = +(
     );
 my $access_token        = $ini->{_}->{'Access Token'};
 my $access_token_secret = $ini->{_}->{'Access Token Secret'};
+$interval ||= $ini->{_}->{interval} || 1;
 
 my $tw;
 if (! $DEBUG) {
@@ -54,8 +56,10 @@ sub update {
 
 if ($status) {
     if ($perline) {
-	foreach my $line (split("\n", $status)) {
-	    update($line);
+	my @lines = split("\n", $status);
+	foreach my $idx (0 .. $#lines) {
+	    update($lines[$idx]);
+	    sleep($interval) if $interval && $idx != $#lines;
 	}
     } else {
 	update($status);
