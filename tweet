@@ -4,9 +4,14 @@ use strict;
 use warnings;
 use File::Basename qw(basename);
 use Config::Tiny;
+use Getopt::Long;
 use Net::Twitter::Lite;
 
 my $DEBUG = -f '.debug';
+
+GetOptions('debug'   => \$DEBUG,
+	   'perline' => \my $perline,
+    );
 
 my $status = join(' ', @ARGV);
 unless ($status) {
@@ -17,7 +22,6 @@ unless ($status) {
 my $prog = basename($0);
 my $conf = "$ENV{HOME}/.$prog";
 my $ini  = Config::Tiny->read($conf);
-
 die Config::Tiny->errstr unless $ini;
 
 my %consumer_tokens = +(
@@ -40,7 +44,7 @@ sub update {
     my $status = shift;
 
     if ($DEBUG) {
-	print $status, "\n";
+	print "DEBUG $status\n";
     } else {
 	utf8::decode($status);
 	my $res = eval { $tw->update({status => $status}) };
@@ -48,4 +52,12 @@ sub update {
     }
 }
 
-update($status) if $status;
+if ($status) {
+    if ($perline) {
+	foreach my $line (split("\n", $status)) {
+	    update($line);
+	}
+    } else {
+	update($status);
+    }
+}
