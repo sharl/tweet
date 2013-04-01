@@ -47,8 +47,8 @@ sub update {
 	print "DEBUG $status\n";
     } else {
 	utf8::decode($status);
-	my $res = eval { $tw->update({status => $status}) };
-	die "$@ $res\n" if $@;
+	eval { $tw->update({status => $status}) };
+	die $@ if $@;
     }
 }
 
