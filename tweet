@@ -10,6 +10,7 @@ use Net::Twitter::Lite;
 my $DEBUG = -f '.debug';
 
 GetOptions('debug'      => \$DEBUG,
+	   'file=s'     => \my $photo,
 	   'interval=n' => \my $interval,
 	   'perline'    => \my $perline,
     );
@@ -29,7 +30,8 @@ my %consumer_tokens = +(
     consumer_key    => $ini->{_}->{'Consumer key'},
     consumer_secret => $ini->{_}->{'Consumer secret'},
     legacy_lists_api => 0,
-    apiurl           => 'http://api.twitter.com/1.1', # ad hoc v1.1 support
+    apiurl           => 'https://api.twitter.com/1.1', # ad hoc v1.1 support
+    upload_url       => 'https://api.twitter.com/1.1',
     );
 my $access_token        = $ini->{_}->{'Access Token'};
 my $access_token_secret = $ini->{_}->{'Access Token Secret'};
@@ -42,14 +44,61 @@ if (! $DEBUG) {
     $tw->access_token_secret($access_token_secret);
 }
 
+sub loadPhoto {
+    my $file;
+
+    if ($photo) {
+	if ($photo =~ qr{^https?://}o) {
+	    use File::Temp;
+	    use LWP::Simple 'getstore';
+	    use HTTP::Status;
+
+	    my $tmpfile = File::Temp->new->filename;
+	    $file = $tmpfile if getstore($photo, $tmpfile) == RC_OK;
+	} else {
+	    $file = $photo if -f $photo;
+	}
+	die "$photo not exist" unless $file;
+
+	my $size = -s $file;
+
+	print "DEBUG $photo information\n";
+	print "DEBUG filename   $file\n";
+	print "DEUBG filesize   $size\n";  
+
+	if ($tw) {
+	    my $config = $tw->get_configuration;
+	    print 'DEBUG size limit '.$config->{photo_size_limit}."\n";
+
+	    if ($size > $config->{photo_size_limit}) {
+		warn "size limit $config->{photo_size_limit} exceeded $photo";
+	    }
+	}
+    }
+
+    $file;
+}
+
 sub update {
     my $status = shift;
+
+    my $file = loadPhoto();
 
     if ($DEBUG) {
 	print "DEBUG $status\n";
     } else {
 	utf8::decode($status);
-	eval { $tw->update({status => $status}) };
+	eval {
+	    $file
+=head
+    [ $file ]
+    [ $file, $filename ]
+    [ $file, $filename, Content_Type => $mime_type ]
+    [ undef, $filename, Content_Type => $mime_type, Content => $raw_image_data ]
+=cut
+		? $tw->update_with_media($status, [$file])
+		: $tw->update({status => $status})
+	};
 	die $@ if $@;
     }
 }
