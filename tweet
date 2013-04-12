@@ -88,14 +88,14 @@ sub update {
 	print "DEBUG $status\n";
     } else {
 	utf8::decode($status);
-	eval {
-	    $file
 =head
     [ $file ]
     [ $file, $filename ]
     [ $file, $filename, Content_Type => $mime_type ]
     [ undef, $filename, Content_Type => $mime_type, Content => $raw_image_data ]
 =cut
+	eval {
+	    $file
 		? $tw->update_with_media($status, [$file])
 		: $tw->update({status => $status})
 	};
