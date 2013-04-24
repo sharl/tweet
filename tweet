@@ -66,12 +66,12 @@ sub loadPhoto {
 	my $size = -s $file;
 
 	if ($tw) {
-	    my $config = $tw->get_configuration;
-	    print 'DEBUG size limit '.$config->{photo_size_limit}."\n";
-
-	    if ($size > $config->{photo_size_limit}) {
-		warn "size limit $config->{photo_size_limit} exceeded $photo";
-	    }
+	    eval {
+		my $config = $tw->get_configuration;
+		if ($size > $config->{photo_size_limit}) {
+		    warn "size limit $config->{photo_size_limit} exceeded $photo";
+		}
+	    };
 	}
 	my $content = do {
 	    open my $fh, '<:bytes', $file or die "$!: $file";
