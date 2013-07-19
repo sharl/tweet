@@ -13,7 +13,8 @@ GetOptions('debug'      => \$DEBUG,
 	   'file=s'     => \my $photo,
 	   'interval=n' => \my $interval,
 	   'perline'    => \my $perline,
-    );
+	   'sensitive'  => \my $sensitive,
+    ) or exit(1);
 
 my $status = join(' ', @ARGV);
 unless ($status) {
@@ -93,7 +94,7 @@ sub update {
 	print "DEBUG $status\n";
     } else {
 	if ($file) {
-	    eval { $tw->update_with_media($status, $file) };
+	    eval { $tw->update_with_media($status, $file, { possibly_sensitive => $sensitive }) };
 	} else {
 	    utf8::decode($status);
 	    eval { $tw->update({status => $status}) };
