@@ -94,7 +94,7 @@ sub update {
 	print "DEBUG $status\n";
     } else {
 	if ($file) {
-	    eval { $tw->update_with_media($status, $file, { possibly_sensitive => $sensitive }) };
+	    eval { $tw->update_with_media($status, $file, { possibly_sensitive => $sensitive ? 1 : 0 }) };
 	} else {
 	    utf8::decode($status);
 	    eval { $tw->update({status => $status}) };
